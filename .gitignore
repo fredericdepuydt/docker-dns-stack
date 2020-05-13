@@ -1,0 +1,2 @@
+# Ignore OpenVPN client configs
+*.ovpn

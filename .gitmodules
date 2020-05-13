@@ -1,0 +1,3 @@
+[submodule "pihole/pihole"]
+	path = pihole/pihole
+	url = https://github.com/fredericdepuydt/pihole-conf.git
