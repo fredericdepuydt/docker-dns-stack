@@ -1,7 +1,7 @@
 # Pi-Hole base image
 FROM pihole/pihole:latest
 
-LABEL maintainer="Frederic Depuydt <f.depuydt@outlook.com>"
+LABEL maintainer="Frederic Depuydt <frederic.depuydt@outlook.com>"
 
 RUN apt-get update
 

@@ -4,7 +4,7 @@
 # Smallest base image
 FROM alpine
 
-LABEL maintainer="Frederic Depuydt <f.depuydt@outlook.com>"
+LABEL maintainer="Frederic Depuydt <frederic.depuydt@outlook.com>"
 
 # Testing: pamtester
 RUN echo "http://dl-cdn.alpinelinux.org/alpine/edge/testing/" >> /etc/apk/repositories && \

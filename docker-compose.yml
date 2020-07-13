@@ -56,13 +56,6 @@ services:
       - "traefik.http.routers.pihole.service=pihole@docker"
       - "traefik.http.services.pihole.loadbalancer.server.port=80"
 
-      - "traefik.http.routers.pihole-lan.entrypoints=websecure"
-      - "traefik.http.routers.pihole-lan.rule=Host(`pihole.${DOMAINNAME_LAN}`)"
-      - "traefik.http.routers.pihole-lan.tls.certResolver=tls-lan"
-      - "traefik.http.routers.pihole-lan.middlewares=pihole-redirect@docker"
-      - "traefik.http.routers.pihole-lan.service=pihole@docker"
-      - "traefik.http.services.pihole-lan.loadbalancer.server.port=80"
-
     # Recommended but not required (DHCP needs NET_ADMIN)
     #   https://github.com/pi-hole/docker-pi-hole#note-on-capabilities
     #cap_add:
