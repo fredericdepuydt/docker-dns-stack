@@ -27,6 +27,8 @@ pihole_password = environment.get("PIHOLE_PASSWORD",True);
 
 ## Creating the volumes, networks and containers
 docker.compose.up("--build --no-start");
+docker.cp("pihole/pihole","pihole:/etc/pihole");
+docker.cp("pihole/dnsmasq.d","pihole:/etc/dnsmasq.d");
 
 ## Setting up openvpn
 #container = "openvpn";
