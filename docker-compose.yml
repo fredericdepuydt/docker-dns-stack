@@ -11,7 +11,7 @@ services:
     restart: always
     networks:
       dns:
-        ipv4_address: 10.0.0.4
+        ipv4_address: 10.0.0.254
 
   pihole:
     # More info at https://github.com/pi-hole/docker-pi-hole/ and https://docs.pi-hole.net/
@@ -20,14 +20,14 @@ services:
     networks:
       web:
       dns:
-        ipv4_address: 10.0.0.3
+        ipv4_address: 10.0.0.253
     ports:
       - "53:53/tcp"
       - "53:53/udp"
     environment:
       - ServerIP=192.168.1.4
       - TZ='Europe/Brussels'
-      - DNS1='10.0.0.4#54'
+      - DNS1='10.0.0.254#54'
       - DNS2=''
       - IPv6=false
       #- PROXY_LOCATION=${SERVER_IP}
@@ -40,7 +40,7 @@ services:
        - pihole-dnsmasq:/etc/dnsmasq.d/
     dns:
       - 127.0.0.1
-      - 10.0.0.4
+      - 10.0.0.254
     labels:
       - "traefik.enable=true"
       - "traefik.docker.network=web"
@@ -71,7 +71,7 @@ services:
     networks:
       web:
       dns:
-        ipv4_address: 10.0.0.2
+        ipv4_address: 10.0.0.252
     privileged: true
     volumes:
       - dnsvpn-data:/etc/openvpn
