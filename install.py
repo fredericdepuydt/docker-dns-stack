@@ -9,29 +9,28 @@
 ############################################################################
 
 ## INCLUDES
-import sys
-sys.path.insert(1, '/usr/local/lib/depuydt/python/')
+import echo, docker
+from depuydt import environment
 
-from echo import echo
-from docker import docker
-from environment import environment
-from mysql import mysql
+##import mysql
 
 ## TITLE
-echo.section("DOCKER DEPLOYING", "Pi-Hole, Cloudflared, OpenVPN (Installing)");
+echo.section("DOCKER DEPLOYING", "Pi-Hole, Cloudflared, OpenVPN (Installing)")
 
 ## Checking external networks
-docker.network.exists("web");
+docker.Network.exists("web")
 
-pihole_password = environment.get("PIHOLE_PASSWORD",True);
+env = Environment("./pihole/.env")
+env.require("WEBPASSWORD")
+env.require("ServerIP")
 
 ## Creating the volumes, networks and containers
-docker.compose.up("--build --no-start");
-docker.cp("pihole/pihole","pihole:/etc/pihole");
-docker.cp("pihole/dnsmasq.d","pihole:/etc/dnsmasq.d");
+docker.Compose.up("--build --no-start")
+docker.cp("pihole/pihole/.","pihole:/etc/pihole/")
+docker.cp("pihole/dnsmasq.d/.","pihole:/etc/dnsmasq.d/")
 
 ## Setting up openvpn
-#container = "openvpn";
-#docker.compose.run("--rm", container, "ovpn_genconfig -u \"tcp://openvpn." + environment.get("DOMAINNAME") + ":443\" -n \"10.0.0.3\"");
-#docker.compose.run("--rm", container, "ovpn_initpki");
+#container = "openvpn"
+#docker.compose.run("--rm", container, "ovpn_genconfig -u \"tcp://openvpn." + environment.get("DOMAINNAME") + ":443\" -n \"10.0.0.3\"")
+#docker.compose.run("--rm", container, "ovpn_initpki")
 

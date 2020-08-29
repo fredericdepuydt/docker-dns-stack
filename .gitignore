@@ -1,2 +1,7 @@
 # Ignore OpenVPN client configs
 *.ovpn
+export
+
+
+# Ignore environment files
+.env

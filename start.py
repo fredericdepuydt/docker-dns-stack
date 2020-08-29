@@ -9,15 +9,11 @@
 ############################################################################
 
 ## INCLUDES
-import sys
-sys.path.insert(1, '/usr/local/lib/depuydt/python/')
-
-from echo import echo
-from docker import docker
+import echo, docker
 
 ## TITLE
-echo.section("DOCKER DEPLOYING","Pi-Hole, Cloudflared, OpenVPN (Starting)");
+echo.section("DOCKER DEPLOYING","Pi-Hole, Cloudflared, OpenVPN (Starting)")
 
 ## Starting All Containers
-docker.compose.up("-d");
+docker.Compose.up("-d")
 
