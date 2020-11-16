@@ -7,34 +7,31 @@ services:
   cloudflared:
     # More info at https://developers.cloudflare.com/1.1.1.1/dns-over-https/
     container_name: cloudflared
-    build: ./cloudflared
+    build: ./build/cloudflared
     restart: unless-stopped
     networks:
-      internet:
       dns:
-        ipv4_address: 10.0.0.4
+        ipv4_address: 192.168.1.7
 
   pihole:
     # More info at https://github.com/pi-hole/docker-pi-hole/ and https://docs.pi-hole.net/
     container_name: pihole
-    build: ./pihole
+    build: ./build/pihole
     networks:
-      internet:
-      web:
       dns:
-        ipv4_address: 10.0.0.3
+        ipv4_address: 192.168.1.5
     ports:
+      - "80:80"
+      - "443:443"
       - "53:53/tcp"
       - "53:53/udp"
-    env_file:
-      - ./pihole/.env
     environment:
       - PUID=${PUID}
       - PGID=${PGID}
       - TZ=${TZ}
       - HOSTNAME='Pi-Hole'
-      - DNS1='10.0.0.4#54'
-      - DNS2=''
+      - DNS1='192.168.1.6'
+      - DNS2='192.168.1.7'
       - IPv6=false
       #- PROXY_LOCATION=${SERVER_IP}
       #- VIRTUAL_HOST=pihole.${DOMAINNAME}
@@ -45,21 +42,22 @@ services:
        - pihole-dnsmasq:/etc/dnsmasq.d/
     dns:
       - 127.0.0.1
-      - 10.0.0.4
-    labels:
-      - "traefik.enable=true"
-      - "traefik.docker.network=web"
+      - 192.168.1.6
+      - 192.168.1.7
+    # labels:
+    #   - "traefik.enable=true"
+    #   - "traefik.docker.network=web"
 
-      - "traefik.http.middlewares.pihole-redirect.redirectregex.regex=^https://([^/]+)/(|admin)$$"
-      - "traefik.http.middlewares.pihole-redirect.redirectregex.replacement=https://$${1}/admin/"
-      - "traefik.http.middlewares.pihole-redirect.redirectregex.permanent=true"
+    #   - "traefik.http.middlewares.pihole-redirect.redirectregex.regex=^https://([^/]+)/(|admin)$$"
+    #   - "traefik.http.middlewares.pihole-redirect.redirectregex.replacement=https://$${1}/admin/"
+    #   - "traefik.http.middlewares.pihole-redirect.redirectregex.permanent=true"
 
-      - "traefik.http.routers.pihole.entrypoints=websecure"
-      - "traefik.http.routers.pihole.rule=Host(`pihole.${DOMAINNAME}`)"
-      - "traefik.http.routers.pihole.tls.certResolver=tls"
-      - "traefik.http.routers.pihole.middlewares=pihole-redirect@docker"
-      - "traefik.http.routers.pihole.service=pihole@docker"
-      - "traefik.http.services.pihole.loadbalancer.server.port=80"
+    #   - "traefik.http.routers.pihole.entrypoints=websecure"
+    #   - "traefik.http.routers.pihole.rule=Host(`pihole.${DOMAINNAME}`)"
+    #   - "traefik.http.routers.pihole.tls.certResolver=tls"
+    #   - "traefik.http.routers.pihole.middlewares=pihole-redirect@docker"
+    #   - "traefik.http.routers.pihole.service=pihole@docker"
+    #   - "traefik.http.services.pihole.loadbalancer.server.port=80"
 
     # Recommended but not required (DHCP needs NET_ADMIN)
     #   https://github.com/pi-hole/docker-pi-hole#note-on-capabilities
@@ -69,18 +67,13 @@ services:
 
   openvpn:
     container_name: dnsvpn
-    build: ./openvpn
+    build: ./build/openvpn
     restart: unless-stopped
     #ports:
       #- 8080:1194/tcp
-    networks:
-      internet:
-      web:
-      dns:
-        ipv4_address: 10.0.0.2
     privileged: true
     volumes:
-      - dnsvpn-data:/etc/openvpn
+      - ./config/openvpn:/etc/openvpn
     cap_add:
       - NET_ADMIN
     labels:
@@ -94,10 +87,6 @@ services:
       - "traefik.docker.network=web"
 
 networks:
-  internet:
-    external: true
-  web:
-    external: true
   dns:
     external: true
 
@@ -108,4 +97,3 @@ volumes:
     name: pihole-dnsmasq
   dnsvpn-data:
     name: dnsvpn-data
-

@@ -5,3 +5,6 @@ export
 
 # Ignore environment files
 .env
+
+# Ignore all config files
+/config

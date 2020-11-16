@@ -19,4 +19,4 @@ RUN	wget https://bin.equinox.io/c/VdrWdbjqyF/cloudflared-stable-linux-arm.tgz; \
 
 HEALTHCHECK --interval=600s --timeout=10s --retries=3 CMD wget -q --tries=1 --spider https://1.1.1.1/ || wget -q --tries=1 --spider https://1.0.0.1/ || exit 1
 
-CMD ["/bin/sh", "-c", "/usr/local/bin/cloudflared proxy-dns --address 0.0.0.0 --port 54 --upstream https://1.1.1.1/.well-known/dns-query --upstream https://1.0.0.1/.well-known/dns-query"]
+CMD ["/bin/sh", "-c", "/usr/local/bin/cloudflared proxy-dns --address 0.0.0.0 --port 53 --upstream https://1.1.1.1/.well-known/dns-query --upstream https://1.0.0.1/.well-known/dns-query"]
