@@ -11,7 +11,7 @@ services:
     restart: unless-stopped
     networks:
       dns:
-        ipv4_address: 192.168.1.7
+        ipv4_address: 192.168.1.6
 
   pihole:
     # More info at https://github.com/pi-hole/docker-pi-hole/ and https://docs.pi-hole.net/
@@ -19,7 +19,7 @@ services:
     build: ./build/pihole
     networks:
       dns:
-        ipv4_address: 192.168.1.5
+        ipv4_address: 192.168.1.4
     ports:
       - "80:80"
       - "443:443"
