@@ -11,7 +11,7 @@ services:
     restart: unless-stopped
     networks:
       dns:
-        ipv4_address: 192.168.1.6
+        ipv4_address: 192.168.2.6
 
   pihole:
     # More info at https://github.com/pi-hole/docker-pi-hole/ and https://docs.pi-hole.net/
@@ -19,7 +19,7 @@ services:
     build: ./build/pihole
     networks:
       dns:
-        ipv4_address: 192.168.1.4
+        ipv4_address: 192.168.2.4
     ports:
       - "80:80"
       - "443:443"
@@ -30,20 +30,22 @@ services:
       - PGID=${PGID}
       - TZ=${TZ}
       - HOSTNAME='Pi-Hole'
-      - DNS1='192.168.1.6'
-      - DNS2='192.168.1.7'
+      - PIHOLE_DNS_=192.168.2.6;192.168.2.7
+      - SKIPGRAVITYONBOOT=1
       - IPv6=false
       #- PROXY_LOCATION=${SERVER_IP}
       #- VIRTUAL_HOST=pihole.${DOMAINNAME}
       #- VIRTUAL_PORT=80
     # Volumes store your data between container upgrades
     volumes:
-       - pihole-conf:/etc/pihole/
-       - pihole-dnsmasq:/etc/dnsmasq.d/
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
+      - pihole-conf:/etc/pihole/
+      - pihole-dnsmasq:/etc/dnsmasq.d/
     dns:
       - 127.0.0.1
-      - 192.168.1.6
-      - 192.168.1.7
+      - 192.168.2.6
+      - 192.168.2.7
     # labels:
     #   - "traefik.enable=true"
     #   - "traefik.docker.network=web"
@@ -64,6 +66,13 @@ services:
     #cap_add:
     #  - NET_ADMIN
     restart: unless-stopped
+
+  #cloudsync:
+    #container_name: cloudsync
+    #build: ./build/cloudsync
+    #restart: unless-stopped
+    #ports:
+      #- 8080:1194/tcp
 
   openvpn:
     container_name: dnsvpn
