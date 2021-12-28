@@ -40,6 +40,7 @@ services:
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - /etc/timezone:/etc/timezone:ro
+      - /etc/hosts:/etc/hosts:ro
       - pihole-conf:/etc/pihole/
       - pihole-dnsmasq:/etc/dnsmasq.d/
     dns:
@@ -88,9 +89,8 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.tcp.routers.openvpn.entrypoints=websecure"
-      - "traefik.tcp.routers.openvpn.rule=HostSNI(`*`)"
-      #- "traefik.tcp.routers.openvpn.rule=HostSNI(`openvpn.depuydt-lauwereins.be`)"
-      #- "traefik.tcp.routers.openvpn.tls.passthrough=true"
+      - "traefik.tcp.routers.openvpn.rule=HostSNI(`portainer.${DOMAINNAME}`)"
+      - "traefik.tcp.routers.openvpn.tls.passthrough=true"
       - "traefik.tcp.routers.openvpn.service=openvpn@docker"
       - "traefik.tcp.services.openvpn.loadbalancer.server.port=1194"
       - "traefik.docker.network=web"
