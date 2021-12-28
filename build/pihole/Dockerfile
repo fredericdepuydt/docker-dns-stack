@@ -1,5 +1,5 @@
 # Pi-Hole base image
-FROM pihole/pihole:2021.12
+FROM pihole/pihole:2021.12.1
 
 LABEL maintainer="Frederic Depuydt <frederic.depuydt@outlook.com>"
 
