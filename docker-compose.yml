@@ -41,8 +41,8 @@ services:
       - /etc/localtime:/etc/localtime:ro
       - /etc/timezone:/etc/timezone:ro
       - /etc/hosts:/etc/hosts:ro
-      - pihole-conf:/etc/pihole/
-      - pihole-dnsmasq:/etc/dnsmasq.d/
+      - ./config/pihole/etc/pihole:/etc/pihole/
+      - ./config/pihole/etc/dnsmasq.d:/etc/dnsmasq.d/
     dns:
       - 127.0.0.1
       - 192.168.2.6
@@ -100,9 +100,5 @@ networks:
     external: true
 
 volumes:
-  pihole-conf:
-    name: pihole-conf
-  pihole-dnsmasq:
-    name: pihole-dnsmasq
   dnsvpn-data:
     name: dnsvpn-data
