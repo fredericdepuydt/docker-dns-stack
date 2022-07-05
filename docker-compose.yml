@@ -13,6 +13,26 @@ services:
       dns:
         ipv4_address: ${DOCKER_CLOUDFLARED_IP}
 
+  #adguard:
+  #  container_name: adguard
+  #  build: ./build/adguard
+  #  networks:
+  #    dns:
+  #      ipv4_address: 192.168.2.8
+  #  ports:
+  #    - "80:80"
+  #    - "443:443"
+  #    - "3000:3000"
+  #    - "53:53/tcp"
+  #    - "53:53/udp"
+  #  volumes:
+  #    - /etc/localtime:/etc/localtime:ro
+  #    - /etc/timezone:/etc/timezone:ro
+  #    - /etc/hosts:/etc/hosts:ro
+  #    - ./config/adguard/work:/opt/adguardhome/work
+  #    - ./config/adguard/conf:/opt/adguardhome/conf
+  #  restart: unless-stopped
+
   pihole:
     # More info at https://github.com/pi-hole/docker-pi-hole/ and https://docs.pi-hole.net/
     container_name: pihole
