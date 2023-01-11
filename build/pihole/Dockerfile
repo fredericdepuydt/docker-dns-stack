@@ -1,9 +1,9 @@
 # Pi-Hole base image
-FROM pihole/pihole:2022.04.3
+FROM pihole/pihole:2022.12.1
 
 LABEL maintainer="Frederic Depuydt <frederic.depuydt@outlook.com>"
 
-RUN apt-get update
+#RUN apt-get update
 
 # Port 53 - DNS Server 
 EXPOSE 53/udp
