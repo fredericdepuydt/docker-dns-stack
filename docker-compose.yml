@@ -1,4 +1,4 @@
-version: '3.7'
+version: '3.8'
 
 ## Prerequisites
 ##   1) Add a DOMAINNAME environment variable in /etc/environment
@@ -50,7 +50,7 @@ services:
       - PGID=${PGID}
       - TZ=${TZ}
       - HOSTNAME='Pi-Hole'
-      - PIHOLE_DNS_=192.168.2.6;192.168.2.7
+      - PIHOLE_DNS_=192.168.2.201;192.168.2.202;192.168.2.203
       - SKIPGRAVITYONBOOT=1
       - IPv6=false
       #- PROXY_LOCATION=${SERVER_IP}
@@ -65,8 +65,9 @@ services:
       - ./config/pihole/etc/dnsmasq.d:/etc/dnsmasq.d/
     dns:
       - 127.0.0.1
-      - 192.168.2.6
-      - 192.168.2.7
+      - 192.168.2.201
+      - 192.168.2.202
+      - 192.168.2.203
     # labels:
     #   - "traefik.enable=true"
     #   - "traefik.docker.network=web"
@@ -95,30 +96,26 @@ services:
     #ports:
       #- 8080:1194/tcp
 
-  openvpn:
-    container_name: dnsvpn
-    build: ./build/openvpn
-    restart: unless-stopped
-    #ports:
-      #- 8080:1194/tcp
-    privileged: true
-    volumes:
-      - ./config/openvpn:/etc/openvpn
-    cap_add:
-      - NET_ADMIN
-    labels:
-      - "traefik.enable=true"
-      - "traefik.tcp.routers.openvpn.entrypoints=websecure"
-      - "traefik.tcp.routers.openvpn.rule=HostSNI(`portainer.${DOMAINNAME}`)"
-      - "traefik.tcp.routers.openvpn.tls.passthrough=true"
-      - "traefik.tcp.routers.openvpn.service=openvpn@docker"
-      - "traefik.tcp.services.openvpn.loadbalancer.server.port=1194"
-      - "traefik.docker.network=web"
+#  openvpn:
+#    container_name: dnsvpn
+#    build: ./build/openvpn
+#    restart: unless-stopped
+#    #ports:
+#      #- 8080:1194/tcp
+#    privileged: true
+#    volumes:
+#      - ./config/openvpn:/etc/openvpn
+#    cap_add:
+#      - NET_ADMIN
+#    labels:
+#      - "traefik.enable=true"
+#      - "traefik.tcp.routers.openvpn.entrypoints=websecure"
+#      - "traefik.tcp.routers.openvpn.rule=HostSNI(`portainer.${DOMAINNAME}`)"
+#      - "traefik.tcp.routers.openvpn.tls.passthrough=true"
+#      - "traefik.tcp.routers.openvpn.service=openvpn@docker"
+#      - "traefik.tcp.services.openvpn.loadbalancer.server.port=1194"
+#      - "traefik.docker.network=web"
 
 networks:
   dns:
     external: true
-
-volumes:
-  dnsvpn-data:
-    name: dnsvpn-data
