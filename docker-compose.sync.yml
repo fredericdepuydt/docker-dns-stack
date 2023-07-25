@@ -1,0 +1,25 @@
+version: '3.8'
+
+## Prerequisites
+##   1) Add a DOMAINNAME environment variable in /etc/environment
+
+services:
+  orbital-sync:
+    container_name: orbital-sync
+    image: mattwebbio/orbital-sync
+    restart: unless-stopped
+    networks:
+      dns:
+        ipv4_address: ${DOCKER_ORBITALSYNC_IP}
+    environment:
+      PRIMARY_HOST_BASE_URL: ${DOCKER_ORBITALSYNC_HOST1}
+      PRIMARY_HOST_PASSWORD: ${DOCKER_ORBITALSYNC_PASS1}
+      SECONDARY_HOST_1_BASE_URL: ${DOCKER_ORBITALSYNC_HOST2}
+      SECONDARY_HOST_1_PASSWORD: ${DOCKER_ORBITALSYNC_PASS2}
+      SECONDARY_HOST_2_BASE_URL: ${DOCKER_ORBITALSYNC_HOST3}
+      SECONDARY_HOST_2_PASSWORD: ${DOCKER_ORBITALSYNC_PASS3}
+      INTERVAL_MINUTES: 30
+
+networks:
+  dns:
+    external: true
