@@ -1,0 +1,59 @@
+#!/command/with-contenv sh
+
+# Make sure we react to these signals by running stop() when we see them - for clean shutdown
+# And then exiting
+trap "stop; exit 0;" SIGTERM SIGINT
+
+stop()
+{
+  # We're here because we've seen SIGTERM, likely via a Docker stop command or similar
+  # Let's shutdown cleanly
+  echo "SIGTERM caught, terminating Traefik process..."
+  # Record PIDs
+  pid=$(pidof traefik)
+  # Kill them
+  kill -TERM $pid > /dev/null 2>&1
+  # Wait until processes have been killed.
+  # Use 'wait $pid' instead if you dislike using sleep (the wait command has less OS support)
+  sleep 1
+  echo "Terminated."
+  exit 0
+}
+
+# This loop runs till until we've started up successfully
+while true; do
+  # Check if Traefik is running by recording it's PID (if it's not running $pid will be null):
+  pid=$(pidof traefik)
+  # If $pid is null, do this to start or restart Traefik:
+  while [ -z "$pid" ]; do
+    #Obviously optional:
+    #echo "Starting Confd population of files..."
+    #/usr/bin/confd -onetime
+    echo "Starting Traefik in the background..."
+    /usr/local/bin/traefik
+    # Check if Traefik is now running by recording it's PID (if it's not running $pid will be null):
+    pid=$(pidof traefik)
+    # If $pid is null, startup failed; log the fact and sleep for 2s
+    # We'll then automatically loop through and try again
+    if [ -z "$pid" ]; then
+      echo "Startup of Traefik failed, sleeping for 2s, then retrying..."
+      sleep 2
+    fi
+  done
+  # Break this outer loop once we've started up successfully
+  # Otherwise, we'll silently restart and Rancher won't know
+  break
+done
+while true; do
+  # Check if Traefik is STILL running by recording it's PID (if it's not running $pid will be null):
+  pid=$(pidof traefik)
+  # If it is not, lets kill our PID1 process (this script) by breaking out of this while loop:
+  # This ensures Docker 'sees' the failure and handles it as necessary
+  if [ -z "$pid" ]; then
+    echo "Traefik is no longer running, exiting so Docker can restart the container..."
+    break
+  fi
+  # If it is, give the CPU a rest
+  sleep 0.5
+done
+exit 1

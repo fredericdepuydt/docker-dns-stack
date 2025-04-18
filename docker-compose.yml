@@ -7,11 +7,17 @@ services:
   cloudflared:
     # More info at https://developers.cloudflare.com/1.1.1.1/dns-over-https/
     container_name: cloudflared
-    build: ./build/cloudflared
+    image: cloudflare/cloudflared:latest
     restart: unless-stopped
     networks:
       dns:
         ipv4_address: ${DOCKER_CLOUDFLARED_IP}
+    healthcheck:
+      test: ['CMD-SHELL', 'curl --fail http://localhost:8080/health || exit 1']
+      interval: 600s
+      timeout: 10s
+      retries: 3
+    command: ["proxy-dns", "--address", "0.0.0.0", "--port", "53", "--upstream", "https://1.1.1.1/.well-known/dns-query", "--upstream", "https://1.0.0.1/.well-known/dns-query"]
 
   #adguard:
   #  container_name: adguard
@@ -36,7 +42,7 @@ services:
   pihole:
     # More info at https://github.com/pi-hole/docker-pi-hole/ and https://docs.pi-hole.net/
     container_name: pihole
-    build: ./build/pihole
+    image: pihole/pihole:latest
     networks:
       dns:
         ipv4_address: ${DOCKER_PIHOLE_IP}
