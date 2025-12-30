@@ -10,3 +10,6 @@ __pycache__
 
 # Ignore all config files
 /config
+
+# Ignore override files
+docker-compose.override.yml
