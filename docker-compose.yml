@@ -1,10 +1,12 @@
 
 services:
+
   cloudflared:
     # More info at https://developers.cloudflare.com/1.1.1.1/dns-over-https/
     container_name: dns-cloudflared
     #image: cloudflare/cloudflared:latest
     build: ./build/cloudflared
+    hostname: cloudflared-${HOSTNAME}
     restart: unless-stopped
     environment:
       - TZ=${TZ}
@@ -38,6 +40,7 @@ services:
     # More info at https://github.com/pi-hole/docker-pi-hole/ and https://docs.pi-hole.net/
     container_name: dns-pihole
     image: pihole/pihole:latest
+    hostname: pihole-${HOSTNAME}
     networks:
       dns:
         ipv4_address: ${DOCKER_PIHOLE_IP}
@@ -50,7 +53,6 @@ services:
       - PUID=${PUID}
       - PGID=${PGID}
       - TZ=${TZ}
-      - HOSTNAME='Pi-Hole'
       - PIHOLE_DNS_=192.168.2.201;192.168.2.202;192.168.2.203
       - SKIPGRAVITYONBOOT=1
       - IPv6=false
@@ -59,8 +61,6 @@ services:
       #- VIRTUAL_PORT=80
     # Volumes store your data between container upgrades
     volumes:
-      - /etc/localtime:/etc/localtime:ro
-      - /etc/timezone:/etc/timezone:ro
       - /etc/hosts:/etc/hosts:ro
       - ./config/pihole/etc/pihole:/etc/pihole/
       - ./config/pihole/etc/dnsmasq.d:/etc/dnsmasq.d/
@@ -90,17 +90,10 @@ services:
     #  - NET_ADMIN
     restart: unless-stopped
 
-  #cloudsync:
-    #container_name: cloudsync
-    #build: ./build/cloudsync
-    #restart: unless-stopped
-    #ports:
-      #- 8080:1194/tcp
-
   nebula-sync:
     image: ghcr.io/lovelaze/nebula-sync:latest
     container_name: dns-nebula-sync    
-    restart: unless-stopped    
+    restart: unless-stopped
     networks:
       dns:
         ipv4_address: ${DOCKER_NEBULASYNC_IP}
@@ -126,6 +119,10 @@ services:
     - RUN_GRAVITY=true 
     - CRON=0 4 * * *
     - TZ=${TZ}
+
+
+
+
 
 networks:
   dns:

@@ -1,0 +1,32 @@
+
+services:
+  pihole-query:
+    build: ./build/analyzer
+    container_name: dns-analyzer
+    environment:
+      # Pi-hole v6 instances
+      DOCKER_PIHOLE_HOST1: ${DOCKER_NEBULASYNC_HOST1}
+      DOCKER_PIHOLE_PASS1: ${DOCKER_NEBULASYNC_PASS1}
+
+      DOCKER_PIHOLE_HOST2: ${DOCKER_NEBULASYNC_HOST2}
+      DOCKER_PIHOLE_PASS2: ${DOCKER_NEBULASYNC_PASS2}
+
+      DOCKER_PIHOLE_HOST3: ${DOCKER_NEBULASYNC_HOST3}
+      DOCKER_PIHOLE_PASS3: ${DOCKER_NEBULASYNC_PASS3}
+            
+    networks:
+      dns:
+        ipv4_address: 192.168.2.99
+
+    volumes:
+      - ./config/analyzer:/app/
+
+    restart: "no"
+
+
+
+
+
+networks:
+  dns:
+    external: true
