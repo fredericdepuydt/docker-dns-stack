@@ -1,40 +1,19 @@
 
 services:
 
-  cloudflared:
-    # More info at https://developers.cloudflare.com/1.1.1.1/dns-over-https/
-    container_name: dns-cloudflared
-    #image: cloudflare/cloudflared:latest
-    build: ./build/cloudflared
-    hostname: cloudflared-${HOSTNAME}
+  dnscrypt:
+    image: yonder00/dnscrypt-proxy:latest
+    container_name: dns-dnscrypt
     restart: unless-stopped
-    environment:
-      - TZ=${TZ}
-      - PUID=${PUID}
-      - PGID=${PGID}
+    ports:
+      - "53:53/udp"
+      - "53:53/tcp"
+    volumes:
+      - ./config/dnscrypt:/config
     networks:
       dns:
-        ipv4_address: ${DOCKER_CLOUDFLARED_IP}
+        ipv4_address: ${DOCKER_DNSCRYPT_IP}
 
-  #adguard:
-  #  container_name: adguard
-  #  build: ./build/adguard
-  #  networks:
-  #    dns:
-  #      ipv4_address: 192.168.2.8
-  #  ports:
-  #    - "80:80"
-  #    - "443:443"
-  #    - "3000:3000"
-  #    - "53:53/tcp"
-  #    - "53:53/udp"
-  #  volumes:
-  #    - /etc/localtime:/etc/localtime:ro
-  #    - /etc/timezone:/etc/timezone:ro
-  #    - /etc/hosts:/etc/hosts:ro
-  #    - ./config/adguard/work:/opt/adguardhome/work
-  #    - ./config/adguard/conf:/opt/adguardhome/conf
-  #  restart: unless-stopped
 
   pihole:
     # More info at https://github.com/pi-hole/docker-pi-hole/ and https://docs.pi-hole.net/
@@ -44,16 +23,16 @@ services:
     networks:
       dns:
         ipv4_address: ${DOCKER_PIHOLE_IP}
-    ports:
-      - "80:80"
-      - "443:443"
-      - "53:53/tcp"
-      - "53:53/udp"
+    #ports:
+    #  - "80:80"
+    #  - "443:443"
+    #  - "53:53/tcp"
+    #  - "53:53/udp"
     environment:
       - PUID=${PUID}
       - PGID=${PGID}
       - TZ=${TZ}
-      - PIHOLE_DNS_=192.168.2.201;192.168.2.202;192.168.2.203
+      - PIHOLE_DNS_=192.168.2.200
       - SKIPGRAVITYONBOOT=1
       - IPv6=false
       #- PROXY_LOCATION=${SERVER_IP}
@@ -66,29 +45,9 @@ services:
       - ./config/pihole/etc/dnsmasq.d:/etc/dnsmasq.d/
     dns:
       - 127.0.0.1
-      - 192.168.2.201
-      - 192.168.2.202
-      - 192.168.2.203
-    # labels:
-    #   - "traefik.enable=true"
-    #   - "traefik.docker.network=web"
-
-    #   - "traefik.http.middlewares.pihole-redirect.redirectregex.regex=^https://([^/]+)/(|admin)$$"
-    #   - "traefik.http.middlewares.pihole-redirect.redirectregex.replacement=https://$${1}/admin/"
-    #   - "traefik.http.middlewares.pihole-redirect.redirectregex.permanent=true"
-
-    #   - "traefik.http.routers.pihole.entrypoints=websecure"
-    #   - "traefik.http.routers.pihole.rule=Host(`pihole.${DOMAINNAME}`)"
-    #   - "traefik.http.routers.pihole.tls.certResolver=tls"
-    #   - "traefik.http.routers.pihole.middlewares=pihole-redirect@docker"
-    #   - "traefik.http.routers.pihole.service=pihole@docker"
-    #   - "traefik.http.services.pihole.loadbalancer.server.port=80"
-
-    # Recommended but not required (DHCP needs NET_ADMIN)
-    #   https://github.com/pi-hole/docker-pi-hole#note-on-capabilities
-    #cap_add:
-    #  - NET_ADMIN
+      - 192.168.2.200
     restart: unless-stopped
+
 
   nebula-sync:
     image: ghcr.io/lovelaze/nebula-sync:latest
