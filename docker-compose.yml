@@ -18,7 +18,8 @@ services:
   pihole:
     # More info at https://github.com/pi-hole/docker-pi-hole/ and https://docs.pi-hole.net/
     container_name: dns-pihole
-    image: pihole/pihole:latest
+    build: ./build/pihole
+    #image: pihole/pihole:2026.04.0
     hostname: pihole-${HOSTNAME}
     networks:
       dns:
@@ -32,17 +33,17 @@ services:
       - PUID=${PUID}
       - PGID=${PGID}
       - TZ=${TZ}
-      - PIHOLE_DNS_=192.168.2.200
-      - SKIPGRAVITYONBOOT=1
-      - IPv6=false
-      #- PROXY_LOCATION=${SERVER_IP}
-      #- VIRTUAL_HOST=pihole.${DOMAINNAME}
-      #- VIRTUAL_PORT=80
-    # Volumes store your data between container upgrades
+      - FTLCONF_dns_upstreams=192.168.2.200
+      - FTLCONF_misc_etc_dnsmasq_d=true
+      - FTLCONF_dns_listeningMode=ALL
     volumes:
       - /etc/hosts:/etc/hosts:ro
       - ./config/pihole/etc/pihole:/etc/pihole/
-      - ./config/pihole/etc/dnsmasq.d:/etc/dnsmasq.d/
+      - ./config/pihole/etc/dnsmasq.d:/etc/dnsmasq.d/    
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+      - NET_BROADCAST
     dns:
       - 127.0.0.1
       - 192.168.2.200

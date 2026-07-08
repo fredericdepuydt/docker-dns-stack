@@ -16,7 +16,7 @@ services:
             
     networks:
       dns:
-        ipv4_address: 192.168.2.99
+        ipv4_address: 192.168.2.98
 
     volumes:
       - ./config/analyzer:/app/
