@@ -17,7 +17,7 @@ The compose configuration reads deployment-specific values from an untracked `.e
 - `.env.example`: documented, safe template for deployment-specific addresses, VRRP groups, priorities, and common settings.
 - `docker-compose.override.yml`: local profile overrides; it is ignored by Git.
 - `build/pihole/`: Pi-hole image extended with s6-overlay and keepalived.
-- `build/dnscrypt/`: dnscrypt-proxy image extended with the same s6-overlay/keepalived pattern.
+- `build/dnscrypt/`: multi-stage dnscrypt-proxy image: copies the upstream runtime into Alpine, then adds s6-overlay and keepalived.
 - `build/*/s6-rc.d/`: s6-overlay v3 service definitions.
 - `build/*/keepalived/keepalived.conf.template`: keepalived template rendered from container environment variables at startup.
 
@@ -30,7 +30,7 @@ Custom service images use s6-overlay v3. Each service placed in `s6-rc.d/user/co
 - DNS daemon `finish` scripts halt the container after an unexpected exit. Do not add this behavior to keepalived: s6 should restart keepalived independently.
 - Dockerfiles install the architecture-specific s6-overlay tarballs, verify their SHA-256 checksums, install keepalived, copy service definitions/configuration, and set `ENTRYPOINT ["/init"]`.
 
-When changing a base image, confirm its package manager and daemon entrypoint. The dnscrypt base is Alpine and starts via `/entrypoint.sh`; Pi-hole is Alpine and starts via `/usr/bin/start.sh`.
+When changing a base image, confirm its package manager and daemon entrypoint. The dnscrypt source image has a BusyBox-only userspace and no package manager, so its binary, certificate bundle, example configuration, `su-exec`, and entrypoint are copied into Alpine 3.23 during the multi-stage build. Pi-hole is Alpine and starts via `/usr/bin/start.sh`.
 
 ## High Availability Rules
 
