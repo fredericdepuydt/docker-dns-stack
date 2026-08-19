@@ -1,7 +1,7 @@
 FROM pihole/pihole:2026.04.0
 
 LABEL maintainer="Frederic Depuydt <frederic.depuydt@outlook.com>"
-LABEL org.opencontainers.image.created="2026-04-18"
+LABEL org.opencontainers.image.created="2026-05-02"
 
 ARG S6_OVERLAY_VERSION=3.2.2.0
 ARG TARGETPLATFORM
