@@ -1,3 +1,59 @@
 #!/command/with-contenv sh
+set -eu
 exec 2>&1
+
+CONFIG_DIR="${CONFIG_DIR:-/config}"
+TOML="${CONFIG_DIR}/dnscrypt-proxy.toml"
+STATIC_IP="${DNSCRYPT_LISTEN_IP:?must be set}"
+VIRTUAL_IP="${DNSCRYPT_VIRTUAL_IP:?must be set}"
+VIRTUAL_IP="${VIRTUAL_IP%/*}"
+
+case "$STATIC_IP:$VIRTUAL_IP" in
+  *[!0-9.:]*) echo 'Invalid dnscrypt listen address' >&2; exit 1 ;;
+esac
+
+set_top_level_kv() {
+  key="$1"
+  value="$2"
+  tmp="${TOML}.tmp"
+
+  awk -v key="$key" -v value="$value" '
+    BEGIN { in_top_level = 1; replaced = 0 }
+    /^\[/ {
+      if (in_top_level && !replaced) {
+        print key " = " value
+        print ""
+        replaced = 1
+      }
+      in_top_level = 0
+    }
+    in_top_level && $0 ~ ("^" key "[[:space:]]*=") {
+      if (!replaced) print key " = " value
+      replaced = 1
+      next
+    }
+    !in_top_level && $0 == (key " = " value) {
+      # Repair nested keys activated by older versions of this startup script.
+      print "# " $0
+      next
+    }
+    { print }
+    END {
+      if (!replaced) print key " = " value
+    }
+  ' "$TOML" > "$tmp"
+  mv "$tmp" "$TOML"
+}
+
+mkdir -p "$CONFIG_DIR"
+if [ ! -f "$TOML" ]; then
+  echo "Seeding $TOML from official example"
+  cp /app/example-dnscrypt-proxy.toml "$TOML"
+  set_top_level_kv doh_servers false
+  set_top_level_kv require_dnssec true
+fi
+
+# Only replace the global key; nested DoH sections also use listen_addresses.
+set_top_level_kv listen_addresses "['$STATIC_IP:53', '$VIRTUAL_IP:53']"
+
 exec /entrypoint.sh

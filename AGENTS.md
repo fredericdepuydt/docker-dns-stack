@@ -25,8 +25,8 @@ The compose configuration reads deployment-specific values from an untracked `.e
 
 Custom service images use s6-overlay v3. Each service placed in `s6-rc.d/user/contents.d/` starts in parallel after the `base` bundle:
 
-- The primary DNS daemon must be a `longrun` service and remain in the foreground.
-- Keepalived must run as a separate `longrun` using `--dont-fork`; its run script renders `/run/keepalived.conf` from the container environment.
+- The primary DNS daemon must be a `longrun` service and remain in the foreground. dnscrypt binds separate sockets to its static address and VRRP VIP so each reply retains the request's destination address as its source. Its run script must update only the top-level TOML `listen_addresses`; nested sections define keys with the same name.
+- Keepalived must run as a separate `longrun` using `--dont-fork`; its run script renders `/run/keepalived.conf` from the container environment and loads it with `-f` (not `--config`).
 - DNS daemon `finish` scripts halt the container after an unexpected exit. Do not add this behavior to keepalived: s6 should restart keepalived independently.
 - Dockerfiles install the architecture-specific s6-overlay tarballs, verify their SHA-256 checksums, install keepalived, copy service definitions/configuration, and set `ENTRYPOINT ["/init"]`.
 
@@ -35,6 +35,7 @@ When changing a base image, confirm its package manager and daemon entrypoint. T
 ## High Availability Rules
 
 - Both `dnscrypt` and `pihole` need `NET_ADMIN`, `NET_RAW`, and `NET_BROADCAST` so keepalived can manage the virtual address and VRRP traffic.
+- dnscrypt requires `net.ipv4.ip_nonlocal_bind=1` so standby instances can bind the VRRP VIP before owning it; do not replace its two explicit listeners with `0.0.0.0`, which can source VIP responses from the static address.
 - Each service has its own VRRP group. Keep `PIHOLE_VRRP_INSTANCE`/`PIHOLE_VRRP_ID`/`PIHOLE_VIRTUAL_IP` identical across Pi-hole peers, and separately keep `DNSCRYPT_VRRP_INSTANCE`/`DNSCRYPT_VRRP_ID`/`DNSCRYPT_VIRTUAL_IP` identical across dnscrypt peers. The two VRRP IDs and virtual IPs must differ.
 - Set `PIHOLE_VRRP_PRIORITY` and `DNSCRYPT_VRRP_PRIORITY` per peer to select an initial preferred owner; keep `nopreempt` unless planned failback is required.
 - Define those variables in the ignored `.env` file (for example, Pi-hole VIP `192.168.2.100/24` and dnscrypt VIP `192.168.2.200/24`) rather than hard-coding addresses in tracked files. Docker Compose passes them to the containers, where the templates are rendered.

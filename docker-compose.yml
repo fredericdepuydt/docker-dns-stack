@@ -5,9 +5,9 @@ services:
     build: ./build/dnscrypt
     container_name: dns-dnscrypt
     restart: unless-stopped
-    ports:
-      - "53:53/udp"
-      - "53:53/tcp"
+    #ports:
+    #  - "53:53/udp"
+    #  - "53:53/tcp"
     volumes:
       - ./config/dnscrypt:/config
     networks:
@@ -22,6 +22,10 @@ services:
       - KEEPALIVED_VRRP_ID=${DOCKER_DNSCRYPT_VRRP_ID}
       - KEEPALIVED_VRRP_PRIORITY=${DOCKER_DNSCRYPT_VRRP_PRIORITY}
       - KEEPALIVED_VIRTUAL_IP=${DOCKER_DNSCRYPT_VIRTUAL_IP}
+      - DNSCRYPT_LISTEN_IP=${DOCKER_DNSCRYPT_IP}
+      - DNSCRYPT_VIRTUAL_IP=${DOCKER_DNSCRYPT_VIRTUAL_IP}
+    sysctls:
+      net.ipv4.ip_nonlocal_bind: "1"
 
 
   pihole:
@@ -59,7 +63,7 @@ services:
       - NET_BROADCAST
     dns:
       - 127.0.0.1
-      - ${DNSCRYPT_VIRTUAL_IP}
+      - ${DOCKER_DNSCRYPT_VIRTUAL_IP}
     restart: unless-stopped
 
 
