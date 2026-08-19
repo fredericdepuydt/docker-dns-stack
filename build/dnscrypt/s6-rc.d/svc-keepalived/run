@@ -21,4 +21,4 @@ sed \
   -e "s|__VIRTUAL_IP__|$KEEPALIVED_VIRTUAL_IP|g" \
   /etc/keepalived/keepalived.conf.template > /run/keepalived.conf
 
-exec /usr/sbin/keepalived --dont-fork --log-console --log-detail --vrrp --config /run/keepalived.conf
+exec /usr/sbin/keepalived --dont-fork --log-console --log-detail --vrrp -f /run/keepalived.conf
