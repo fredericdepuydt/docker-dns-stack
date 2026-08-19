@@ -1,0 +1,10 @@
+#!/bin/sh
+code="$1"
+
+# 256 is the usual "killed by signal" case during normal supervised shutdown.
+if [ "$code" -ne 0 ] && [ "$code" -ne 256 ]; then
+  echo "$code" > /run/s6-linux-init-container-results/exitcode
+  exec /run/s6/basedir/bin/halt
+fi
+
+exit 0

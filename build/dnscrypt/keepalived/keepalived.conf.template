@@ -1,0 +1,19 @@
+global_defs {
+    vrrp_version 2
+    vrrp_garp_master_delay 1
+    vrrp_garp_master_refresh 60
+    script_user root
+    enable_script_security
+}
+
+vrrp_instance __VRRP_INSTANCE__ {
+    state MASTER
+    interface eth0
+    virtual_router_id __VRRP_ID__
+    priority __VRRP_PRIORITY__
+    advert_int 1
+    nopreempt
+    virtual_ipaddress {
+        __VIRTUAL_IP__ dev eth0
+    }
+}

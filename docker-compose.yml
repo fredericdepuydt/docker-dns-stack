@@ -2,7 +2,7 @@
 services:
 
   dnscrypt:
-    image: yonder00/dnscrypt-proxy:latest
+    build: ./build/dnscrypt
     container_name: dns-dnscrypt
     restart: unless-stopped
     ports:
@@ -13,6 +13,15 @@ services:
     networks:
       dns:
         ipv4_address: ${DOCKER_DNSCRYPT_IP}
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+      - NET_BROADCAST
+    environment:
+      - KEEPALIVED_VRRP_INSTANCE=${DOCKER_DNSCRYPT_VRRP_INSTANCE}
+      - KEEPALIVED_VRRP_ID=${DOCKER_DNSCRYPT_VRRP_ID}
+      - KEEPALIVED_VRRP_PRIORITY=${DOCKER_DNSCRYPT_VRRP_PRIORITY}
+      - KEEPALIVED_VIRTUAL_IP=${DOCKER_DNSCRYPT_VIRTUAL_IP}
 
 
   pihole:
@@ -33,9 +42,13 @@ services:
       - PUID=${PUID}
       - PGID=${PGID}
       - TZ=${TZ}
-      - FTLCONF_dns_upstreams=192.168.2.200
+      - FTLCONF_dns_upstreams=${DOCKER_DNSCRYPT_VIRTUAL_IP}
       - FTLCONF_misc_etc_dnsmasq_d=true
       - FTLCONF_dns_listeningMode=ALL
+      - KEEPALIVED_VRRP_INSTANCE=${DOCKER_PIHOLE_VRRP_INSTANCE}
+      - KEEPALIVED_VRRP_ID=${DOCKER_PIHOLE_VRRP_ID}
+      - KEEPALIVED_VRRP_PRIORITY=${DOCKER_PIHOLE_VRRP_PRIORITY}
+      - KEEPALIVED_VIRTUAL_IP=${DOCKER_PIHOLE_VIRTUAL_IP}
     volumes:
       - /etc/hosts:/etc/hosts:ro
       - ./config/pihole/etc/pihole:/etc/pihole/
@@ -46,7 +59,7 @@ services:
       - NET_BROADCAST
     dns:
       - 127.0.0.1
-      - 192.168.2.200
+      - ${DNSCRYPT_VIRTUAL_IP}
     restart: unless-stopped
 
 
