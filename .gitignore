@@ -13,3 +13,7 @@ __pycache__
 
 # Ignore override files
 docker-compose.override.yml
+
+
+# Ignore all copilot files
+/.copilot
